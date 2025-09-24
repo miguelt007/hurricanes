@@ -3,12 +3,12 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// Escala dinâmica dos rótulos
+// Escala dinâmica dos rótulos com font-size
 map.on("zoomend", () => {
   const zoom = map.getZoom();
-  const scale = Math.min(1.5, 0.6 + zoom * 0.15);
+  const size = Math.min(18, 10 + zoom);
   document.querySelectorAll(".leaflet-tooltip").forEach(el => {
-    el.style.transform = `scale(${scale})`;
+    el.style.fontSize = `${size}px`;
   });
 });
 
@@ -132,7 +132,7 @@ Vento: ${wind} km/h<br>
 Direção: ${direction}<br>
 Pressão: ${pressure} hPa`);
 
-        marker.addTo(map); // ✅ Adiciona primeiro
+        marker.addTo(map);
 
         marker.bindTooltip(name, {
           permanent: true,
