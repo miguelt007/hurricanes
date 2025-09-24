@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Furacões e Tufões Ativos</title>
+  <title>Painel de Furacões Ativos</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
@@ -12,13 +12,14 @@
     th { background-color: #f4f4f4; }
     input[type="text"] { font-size: 16px; }
     button { cursor: pointer; }
+    #fallback { margin-top: 20px; background: #f9f9f9; padding: 10px; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
-  <h1>🌪️ Painel de Furacões e Tufões Ativos</h1>
+  <h1>🌪️ Painel de Furacões Ativos</h1>
 
-  <label for="idInput"><strong>🌀 IDs de sistemas ativos (separados por vírgulas):</strong></label><br>
-  <input type="text" id="idInput" value="al072025,EP132025" style="width:100%; padding:8px; margin-top:6px;" />
+  <label for="idInput"><strong>🌀 IDs manuais (separados por vírgulas):</strong></label><br>
+  <input type="text" id="idInput" value="AL072025,EP132025" style="width:100%; padding:8px; margin-top:6px;" />
   <button id="loadBtn" style="margin-top:10px; padding:6px 12px; font-size:16px;">🔄 Carregar sistemas</button>
 
   <div id="map"></div>
@@ -35,6 +36,8 @@
     </thead>
     <tbody></tbody>
   </table>
+
+  <div id="fallback"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
