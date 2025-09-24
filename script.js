@@ -190,10 +190,27 @@ Pressão: ${pressure} hPa`);
           }
         }).addTo(map);
 
-        if (!found) {
-          const row = tbody.insertRow();
-          row.innerHTML = `<td>${id}</td><td colspan="6">GeoJSON carregado mas sem dados visíveis</td>`;
-        }
+        // 🔄 Carregar cone de previsão se existir
+        const coneUrl = `https://www.nhc.noaa.gov/gis/forecast/archive/${id}_cone_latest.geojson`;
+
+        fetch(coneUrl)
+          .then(res => {
+            if (!res.ok) throw new Error("Cone não encontrado");
+            return res.json();
+          })
+          .then(coneData => {
+            L.geoJSON(coneData, {
+              style: {
+                color: "#666",
+                weight: 1,
+                fillColor: "#999",
+                fillOpacity: 0.3
+              }
+            }).addTo(map);
+          })
+          .catch(() => {
+            console.log(`Cone não disponível para ${id}`);
+          });
       })
       .catch(() => {
         const row = tbody.insertRow();
