@@ -3,6 +3,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
+// 🗺️ Legenda de intensidade
 const legend = L.control({ position: 'bottomright' });
 
 legend.onAdd = function () {
