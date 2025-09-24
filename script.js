@@ -1,25 +1,32 @@
-const apiKey = "c43af272657b41b8ad291347252409"; // substitui pela tua chave gratuita
-const cities = ["Lisboa", "Miami", "Tokyo", "Sydney"];
-const map = L.map('map').setView([20, 0], 2);
+const map = L.map('map').setView([20, -60], 3);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
-const tbody = document.querySelector("#weatherTable tbody");
+const tbody = document.querySelector("#stormTable tbody");
 
-cities.forEach(city => {
-  fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`)
-    .then(res => res.json())
-    .then(data => {
-      const { name, lat, lon } = data.location;
-      const { temp_c, wind_kph, condition } = data.current;
+fetch("https://www.cyclocane.com/api/current-storms.json")
+  .then(res => res.json())
+  .then(data => {
+    data.forEach(storm => {
+      const { name, category, lat, lon, wind_kph, pressure } = storm;
 
       // Adiciona à tabela
       const row = tbody.insertRow();
-      row.innerHTML = `<td>${name}</td><td>${temp_c}°C</td><td>${wind_kph} km/h</td><td>${condition.text}</td>`;
+      row.innerHTML = `
+        <td>${name}</td>
+        <td>${category || "N/A"}</td>
+        <td>${lat}, ${lon}</td>
+        <td>${wind_kph || "N/A"}</td>
+        <td>${pressure || "N/A"}</td>
+      `;
 
       // Adiciona ao mapa
       L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<strong>${name}</strong><br>${condition.text}<br>Temp: ${temp_c}°C<br>Vento: ${wind_kph} km/h`);
+        .bindPopup(`<strong>${name}</strong><br>Categoria: ${category || "N/A"}<br>Vento: ${wind_kph || "N/A"} km/h<br>Pressão: ${pressure || "N/A"} hPa`);
     });
-});
+  })
+  .catch(err => {
+    console.error("Erro ao obter dados:", err);
+    alert("Não foi possível carregar os dados dos furacões.");
+  });
