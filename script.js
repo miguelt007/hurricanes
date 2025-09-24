@@ -1,4 +1,4 @@
-const map = L.map('map').setView([20, -60], 3);
+const map = L.map('map').setView([20, -60], 5);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
@@ -133,7 +133,7 @@ Pressão: ${pressure} hPa`);
           permanent: true,
           direction: 'right',
           offset: [10, 0],
-          className: 'storm-label'
+          opacity: 0.9
         });
 
         marker.addTo(map);
