@@ -11,7 +11,12 @@ const geojsonUrl = "https://opendata.arcgis.com/datasets/9e1c3f8c8b5f4b0b9c1f6e6
 fetch(geojsonUrl)
   .then(res => res.json())
   .then(data => {
-    L.geoJSON(data, {
+    const filtered = data.features.filter(feature => {
+      const cat = parseInt(feature.properties.SAFFIR_SIM_CAT);
+      return !isNaN(cat) && cat >= 3;
+    });
+
+    L.geoJSON({ type: "FeatureCollection", features: filtered }, {
       onEachFeature: function (feature, layer) {
         const props = feature.properties;
         const name = props.STORMNAME || "Desconhecido";
@@ -20,12 +25,13 @@ fetch(geojsonUrl)
         const lon = props.LON || 0;
         const wind = props.WINDSPEED || "N/A";
         const pressure = props.PRESSURE || "N/A";
+        const category = props.SAFFIR_SIM_CAT || "N/A";
 
         // Adiciona à tabela
         const row = tbody.insertRow();
         row.innerHTML = `
           <td>${name}</td>
-          <td>${type}</td>
+          <td>${type} (Cat ${category})</td>
           <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
           <td>${wind}</td>
           <td>${pressure}</td>
@@ -33,7 +39,7 @@ fetch(geojsonUrl)
 
         // Adiciona ao mapa
         L.marker([lat, lon]).addTo(map)
-          .bindPopup(`<strong>${name}</strong><br>Tipo: ${type}<br>Vento: ${wind} km/h<br>Pressão: ${pressure} hPa`);
+          .bindPopup(`<strong>${name}</strong><br>Tipo: ${type}<br>Categoria: ${category}<br>Vento: ${wind} km/h<br>Pressão: ${pressure} hPa`);
       }
     }).addTo(map);
   })
