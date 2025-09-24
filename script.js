@@ -8,18 +8,17 @@ const legend = L.control({ position: 'bottomright' });
 
 legend.onAdd = function () {
   const div = L.DomUtil.create('div', 'info legend');
-  const grades = [250, 210, 178, 154, 119, 0];
   const labels = [
-    "Categoria 5 (≥ 250 km/h)",
-    "Categoria 4 (210–249 km/h)",
-    "Categoria 3 (178–209 km/h)",
-    "Categoria 2 (154–177 km/h)",
-    "Categoria 1 (119–153 km/h)",
+    "Category 5 (≥ 250 km/h)",
+    "Category 4 (210–249 km/h)",
+    "Category 3 (178–209 km/h)",
+    "Category 2 (154–177 km/h)",
+    "Category 1 (119–153 km/h)",
     "Tempestade (< 119 km/h)"
   ];
   const colors = ["#800026", "#BD0026", "#E31A1C", "#FC4E2A", "#FD8D3C", "#FEB24C"];
 
-  for (let i = 0; i < grades.length; i++) {
+  for (let i = 0; i < labels.length; i++) {
     div.innerHTML +=
       `<i style="background:${colors[i]}; width:12px; height:12px; display:inline-block; margin-right:6px;"></i> ${labels[i]}<br>`;
   }
@@ -39,6 +38,22 @@ function getColor(wind) {
   if (wind >= 154) return "#FC4E2A";
   if (wind >= 119) return "#FD8D3C";
   return "#FEB24C";
+}
+
+function getColorByIntensity(intensity) {
+  switch (intensity) {
+    case "Category 5": return "#800026";
+    case "Category 4": return "#BD0026";
+    case "Category 3": return "#E31A1C";
+    case "Category 2": return "#FC4E2A";
+    case "Category 1": return "#FD8D3C";
+    default: return "#FEB24C";
+  }
+}
+
+function getColorStyleByIntensity(intensity) {
+  const color = getColorByIntensity(intensity);
+  return `background:${color}; width:12px; height:12px; display:inline-block; border-radius:50%; margin-right:6px;`;
 }
 
 function degreesToCardinal(deg) {
@@ -95,12 +110,12 @@ function loadFromJson() {
           <td>${wind} km/h</td>
           <td>${direction}</td>
           <td>${pressure}</td>
-          <td>${intensity}</td>
+          <td><span style="${getColorStyleByIntensity(intensity)}"></span>${intensity}</td>
         `;
 
         const marker = L.circleMarker([lat, lon], {
           radius: 8,
-          fillColor: getColor(wind),
+          fillColor: getColorByIntensity(intensity),
           color: "#000",
           weight: 1,
           opacity: 1,
