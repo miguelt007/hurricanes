@@ -46,11 +46,10 @@ loadBtn.onclick = () => {
   tbody.innerHTML = "";
   fallback.innerHTML = "";
   map.eachLayer(layer => {
-    if (layer instanceof L.Marker || layer instanceof L.CircleMarker || layer instanceof L.GeoJSON) map.removeLayer(layer);
+    if (layer instanceof L.Marker || layer instanceof L.CircleMarker || layer instanceof L.GeoJSON || layer instanceof L.Polyline) {
+      map.removeLayer(layer);
+    }
   });
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
   loadFromJson(ids);
 };
 
@@ -85,19 +84,20 @@ function loadFromJson(manualIds) {
           <td>${pressure}</td>
         `;
 
-        L.circleMarker([lat, lon], {
+        const marker = L.circleMarker([lat, lon], {
           radius: 8,
           fillColor: getColor(wind),
           color: "#000",
           weight: 1,
           opacity: 1,
           fillOpacity: 0.8
-        }).addTo(map)
-          .bindPopup(`<strong>${name}</strong><br>
+        });
+        marker.bindPopup(`<strong>${name}</strong><br>
 Tipo: ${type}<br>
 Vento: ${wind} km/h<br>
 Direção: ${direction}<br>
 Pressão: ${pressure} hPa`);
+        marker.addTo(map);
 
         if (!isNaN(bearing)) {
           const [destLat, destLon] = computeOffset(lat, lon, bearing);
@@ -178,12 +178,12 @@ function loadManualIds(ids) {
               weight: 1,
               opacity: 1,
               fillOpacity: 0.8
-            }).addTo(map);
-
+            });
             marker.bindPopup(`<strong>${name}</strong><br>
 Tipo: ${type}<br>
 Vento: ${wind} km/h<br>
 Pressão: ${pressure} hPa`);
+            marker.addTo(map);
             found = true;
           }
         }).addTo(map);
