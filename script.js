@@ -155,12 +155,12 @@ Pressão: ${pressure} hPa`);
 
         if (!found) {
           const row = tbody.insertRow();
-          row.innerHTML = `<td>${id}</td><td colspan="5">GeoJSON carregado mas sem dados visíveis</td>`;
+          row.innerHTML = `<td>${id}</td><td colspan="6">GeoJSON carregado mas sem dados visíveis</td>`;
         }
       })
       .catch(() => {
         const row = tbody.insertRow();
-        row.innerHTML = `<td>${id}</td><td colspan="5">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
+        row.innerHTML = `<td>${id}</td><td colspan="6">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
       });
   });
 }
