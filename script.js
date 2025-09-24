@@ -5,7 +5,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 const tbody = document.querySelector("#stormTable tbody");
 
-fetch("https://www.nhc.noaa.gov/CurrentStorms.json")
+const proxyUrl = "https://api.allorigins.win/raw?url=";
+const targetUrl = "https://www.nhc.noaa.gov/CurrentStorms.json";
+
+fetch(proxyUrl + encodeURIComponent(targetUrl))
   .then(res => res.json())
   .then(data => {
     const storms = data.activeStorms || [];
@@ -21,9 +24,8 @@ fetch("https://www.nhc.noaa.gov/CurrentStorms.json")
       } = storm;
 
       const windKnots = parseInt(intensity);
-      const windKph = Math.round(windKnots * 1.852); // conversão para km/h
-
-      if (isNaN(windKph) || windKph < 178) return; // filtrar categoria ≥ 3
+      const windKph = Math.round(windKnots * 1.852);
+      if (isNaN(windKph) || windKph < 178) return;
 
       const row = tbody.insertRow();
       row.innerHTML = `
