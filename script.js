@@ -31,15 +31,6 @@ legend.addTo(map);
 const tbody = document.querySelector("#stormTable tbody");
 const fallback = document.getElementById("fallback");
 
-function getColor(wind) {
-  if (wind >= 250) return "#800026";
-  if (wind >= 210) return "#BD0026";
-  if (wind >= 178) return "#E31A1C";
-  if (wind >= 154) return "#FC4E2A";
-  if (wind >= 119) return "#FD8D3C";
-  return "#FEB24C";
-}
-
 function getColorByIntensity(intensity) {
   switch (intensity) {
     case "Category 5": return "#800026";
@@ -54,6 +45,14 @@ function getColorByIntensity(intensity) {
 function getColorStyleByIntensity(intensity) {
   const color = getColorByIntensity(intensity);
   return `background:${color}; width:12px; height:12px; display:inline-block; border-radius:50%; margin-right:6px;`;
+}
+
+function normalizeIntensity(raw) {
+  if (!raw) return "Tempestade";
+  const match = raw.match(/Category\s+\d/);
+  if (match) return match[0];
+  if (raw.includes("Tropical")) return "Tempestade";
+  return raw;
 }
 
 function degreesToCardinal(deg) {
@@ -100,7 +99,8 @@ function loadFromJson() {
         const bearing = parseFloat(storm.movementDir);
         const direction = degreesToCardinal(bearing);
         const pressure = storm.pressure || "N/A";
-        const intensity = storm.intensity || "N/A";
+        const rawIntensity = storm.intensity || "";
+        const intensity = normalizeIntensity(rawIntensity);
 
         const row = tbody.insertRow();
         row.innerHTML = `
