@@ -1,4 +1,4 @@
-const apiKey = "YOUR_API_KEY"; // substitui pela tua chave gratuita
+const apiKey = "c43af272657b41b8ad291347252409"; // substitui pela tua chave gratuita
 const cities = ["Lisboa", "Miami", "Tokyo", "Sydney"];
 const map = L.map('map').setView([20, 0], 2);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
