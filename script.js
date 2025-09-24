@@ -160,8 +160,16 @@ Pressão: ${pressure} hPa`);
             found = true;
           }
         }).addTo(map);
-
-        if (!found) {
+if (!found) {
           const row = tbody.insertRow();
           row.innerHTML = `<td>${id}</td><td colspan="6">GeoJSON carregado mas sem dados visíveis</td>`;
-       [43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/Concours99/Weather-Station/tree/e4aabe75e27f9414bc3e25fab72efeec917fc59d/tempest.py?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/ramsendang/ecommerce/tree/45b70895dbe560adec17450a524225e465019645/admin%2Fassets%2Fweather%2Fjs%2Fjquery.simpleWeather.min.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "2")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/sfriso/InfoBox/tree/aff70e7481c8043b2457b4cdb703818e86a079ee/routes%2Fpublic%2Ftesto%2Finfobox.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "3")
+        }
+      })
+      .catch(() => {
+        const row = tbody.insertRow();
+        row.innerHTML = `<td>${id}</td><td colspan="6">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
+      });
+  });
+}
+
+loadBtn.click();
