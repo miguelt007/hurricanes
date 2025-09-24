@@ -3,9 +3,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// 🗺️ Legenda de intensidade
-const legend = L.control({ position: 'bottomright' });
+// Escala dinâmica dos rótulos
+map.on("zoomend", () => {
+  const zoom = map.getZoom();
+  const scale = Math.min(1.5, 0.6 + zoom * 0.15);
+  document.querySelectorAll(".leaflet-tooltip").forEach(el => {
+    el.style.transform = `scale(${scale})`;
+  });
+});
 
+const legend = L.control({ position: 'bottomright' });
 legend.onAdd = function () {
   const div = L.DomUtil.create('div', 'info legend');
   const labels = [
@@ -17,15 +24,11 @@ legend.onAdd = function () {
     "Tempestade (< 119 km/h)"
   ];
   const colors = ["#800026", "#BD0026", "#E31A1C", "#FC4E2A", "#FD8D3C", "#FEB24C"];
-
   for (let i = 0; i < labels.length; i++) {
-    div.innerHTML +=
-      `<i style="background:${colors[i]}; width:12px; height:12px; display:inline-block; margin-right:6px;"></i> ${labels[i]}<br>`;
+    div.innerHTML += `<i style="background:${colors[i]}; width:12px; height:12px; display:inline-block; margin-right:6px;"></i> ${labels[i]}<br>`;
   }
-
   return div;
 };
-
 legend.addTo(map);
 
 const tbody = document.querySelector("#stormTable tbody");
