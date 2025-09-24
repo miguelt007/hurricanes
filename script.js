@@ -11,9 +11,9 @@ fetch("https://www.nhc.noaa.gov/CurrentStorms.json")
     const storms = data.activeStorms || [];
 
     storms.forEach(storm => {
-      const { name, lat, lon, type, windSpeed, pressure } = storm;
+      const { name, type, lat, lon, windSpeed, pressure } = storm;
 
-      // Filtrar por categoria (exemplo: furacões com vento ≥ 178 km/h ≈ Cat 3)
+      // Filtrar por furacões/tufões com vento ≥ 178 km/h (≈ Categoria 3)
       if (windSpeed < 178) return;
 
       // Adiciona à tabela
