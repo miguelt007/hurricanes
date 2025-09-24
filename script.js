@@ -44,10 +44,10 @@ function loadFromJson(manualIds) {
       json.activeStorms.forEach(storm => {
         const name = storm.stormName || "Sem nome";
         const type = storm.stormType || "Sem tipo";
-        const lat = parseFloat(storm.latitude) || 0;
-        const lon = parseFloat(storm.longitude) || 0;
-        const wind = parseInt(storm.wind) || 0;
-        const pressure = storm.pressure || "N/A";
+        const lat = parseFloat(storm.stormLat) || 0;
+        const lon = parseFloat(storm.stormLon) || 0;
+        const wind = parseInt(storm.stormWind) || 0;
+        const pressure = storm.stormPressure || "N/A";
 
         const row = tbody.insertRow();
         row.innerHTML = `
@@ -86,3 +86,73 @@ function loadFromXml() {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
       const advisory = xmlDoc.querySelector("text");
+
+      if (advisory) {
+        fallback.innerHTML = `<h3>📢 Aviso oficial (XML)</h3><pre>${advisory.textContent.trim()}</pre>`;
+      } else {
+        fallback.innerHTML = `<p>⚠️ Nenhum aviso encontrado no XML.</p>`;
+      }
+    })
+    .catch(() => {
+      fallback.innerHTML = `<p>⚠️ Erro ao carregar boletim XML.</p>`;
+    });
+}
+
+function loadManualIds(ids) {
+  ids.forEach(id => {
+    const geojsonUrl = `https://www.nhc.noaa.gov/gis/forecast/archive/${id}_5day_latest.geojson`;
+
+    fetch(geojsonUrl)
+      .then(res => {
+        if (!res.ok) throw new Error("GeoJSON não encontrado");
+        return res.json();
+      })
+      .then(data => {
+        let found = false;
+
+        L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            const props = feature.properties;
+            const name = props.STORMNAME || id;
+            const type = props.STORMTYPE || "Tropical";
+            const lat = props.LAT || 0;
+            const lon = props.LON || 0;
+            const wind = parseInt(props.WINDSPEED) || 0;
+            const pressure = props.PRESSURE || "N/A";
+
+            const row = tbody.insertRow();
+            row.innerHTML = `
+              <td>${name}</td>
+              <td>${type}</td>
+              <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
+              <td>${wind} km/h</td>
+              <td>${pressure}</td>
+            `;
+
+            const marker = L.circleMarker([lat, lon], {
+              radius: 8,
+              fillColor: getColor(wind),
+              color: "#000",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8
+            }).addTo(map);
+
+            marker.bindPopup(`<strong>${name}</strong><br>Tipo: ${type}<br>Vento: ${wind} km/h<br>Pressão: ${pressure} hPa`);
+            found = true;
+          }
+        }).addTo(map);
+
+        if (!found) {
+          const row = tbody.insertRow();
+          row.innerHTML = `<td>${id}</td><td colspan="4">GeoJSON carregado mas sem dados visíveis</td>`;
+        }
+      })
+      .catch(() => {
+        const row = tbody.insertRow();
+        row.innerHTML = `<td>${id}</td><td colspan="4">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
+      });
+  });
+}
+
+loadBtn.click();
