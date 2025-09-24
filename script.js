@@ -25,7 +25,7 @@ function degreesToCardinal(deg) {
   return dirs[ix];
 }
 
-function computeOffset(lat, lon, bearing, distanceDeg = 0.5) {
+function computeOffset(lat, lon, bearing, distanceDeg = 1.5) {
   const rad = Math.PI / 180;
   const lat1 = lat * rad;
   const lon1 = lon * rad;
@@ -100,13 +100,15 @@ Pressão: ${pressure} hPa`);
         marker.addTo(map);
 
         if (!isNaN(bearing)) {
-          const [destLat, destLon] = computeOffset(lat, lon, bearing);
-          L.polyline([[lat, lon], [destLat, destLon]], {
-            color: "#333",
-            weight: 2,
-            opacity: 0.8,
-            dashArray: "4,4"
-          }).addTo(map);
+          const [destLat, destLon] = computeOffset(lat, lon, bearing, 1.5);
+          if (!isNaN(destLat) && !isNaN(destLon)) {
+            L.polyline([[lat, lon], [destLat, destLon]], {
+              color: "#000",
+              weight: 2,
+              opacity: 0.9,
+              dashArray: "6,4"
+            }).addTo(map);
+          }
         }
       });
 
