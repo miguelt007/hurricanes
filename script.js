@@ -47,6 +47,7 @@ function loadFromJson(manualIds) {
         const lat = parseFloat(storm.latitudeNumeric) || 0;
         const lon = parseFloat(storm.longitudeNumeric) || 0;
         const wind = parseInt(storm.movementSpeed) || 0;
+        const direction = storm.movementDir || "N/A";
         const pressure = storm.pressure || "N/A";
 
         const row = tbody.insertRow();
@@ -55,6 +56,7 @@ function loadFromJson(manualIds) {
           <td>${type}</td>
           <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
           <td>${wind} km/h</td>
+          <td>${direction}</td>
           <td>${pressure}</td>
         `;
 
@@ -66,7 +68,11 @@ function loadFromJson(manualIds) {
           opacity: 1,
           fillOpacity: 0.8
         }).addTo(map)
-          .bindPopup(`<strong>${name}</strong><br>Tipo: ${type}<br>Vento: ${wind} km/h<br>Pressão: ${pressure} hPa`);
+          .bindPopup(`<strong>${name}</strong><br>
+Tipo: ${type}<br>
+Vento: ${wind} km/h<br>
+Direção: ${direction}<br>
+Pressão: ${pressure} hPa`);
       });
 
       loadManualIds(manualIds);
@@ -126,6 +132,7 @@ function loadManualIds(ids) {
               <td>${type}</td>
               <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
               <td>${wind} km/h</td>
+              <td>—</td>
               <td>${pressure}</td>
             `;
 
@@ -138,19 +145,22 @@ function loadManualIds(ids) {
               fillOpacity: 0.8
             }).addTo(map);
 
-            marker.bindPopup(`<strong>${name}</strong><br>Tipo: ${type}<br>Vento: ${wind} km/h<br>Pressão: ${pressure} hPa`);
+            marker.bindPopup(`<strong>${name}</strong><br>
+Tipo: ${type}<br>
+Vento: ${wind} km/h<br>
+Pressão: ${pressure} hPa`);
             found = true;
           }
         }).addTo(map);
 
         if (!found) {
           const row = tbody.insertRow();
-          row.innerHTML = `<td>${id}</td><td colspan="4">GeoJSON carregado mas sem dados visíveis</td>`;
+          row.innerHTML = `<td>${id}</td><td colspan="5">GeoJSON carregado mas sem dados visíveis</td>`;
         }
       })
       .catch(() => {
         const row = tbody.insertRow();
-        row.innerHTML = `<td>${id}</td><td colspan="4">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
+        row.innerHTML = `<td>${id}</td><td colspan="5">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
       });
   });
 }
