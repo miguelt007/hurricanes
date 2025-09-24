@@ -42,12 +42,12 @@ function loadFromJson(manualIds) {
       }
 
       json.activeStorms.forEach(storm => {
-        const name = storm.stormName || "Sem nome";
-        const type = storm.stormType || "Sem tipo";
-        const lat = parseFloat(storm.stormLat) || 0;
-        const lon = parseFloat(storm.stormLon) || 0;
-        const wind = parseInt(storm.stormWind) || 0;
-        const pressure = storm.stormPressure || "N/A";
+        const name = storm.name || "Sem nome";
+        const type = storm.classification || "Sem tipo";
+        const lat = parseFloat(storm.latitudeNumeric) || 0;
+        const lon = parseFloat(storm.longitudeNumeric) || 0;
+        const wind = parseInt(storm.movementSpeed) || 0;
+        const pressure = storm.pressure || "N/A";
 
         const row = tbody.insertRow();
         row.innerHTML = `
