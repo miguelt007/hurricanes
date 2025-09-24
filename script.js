@@ -59,6 +59,7 @@ function loadFromJson() {
         const bearing = parseFloat(storm.movementDir);
         const direction = degreesToCardinal(bearing);
         const pressure = storm.pressure || "N/A";
+        const intensity = storm.intensity || "N/A";
 
         const row = tbody.insertRow();
         row.innerHTML = `
@@ -68,6 +69,7 @@ function loadFromJson() {
           <td>${wind} km/h</td>
           <td>${direction}</td>
           <td>${pressure}</td>
+          <td>${intensity}</td>
         `;
 
         const marker = L.circleMarker([lat, lon], {
@@ -80,6 +82,7 @@ function loadFromJson() {
         });
         marker.bindPopup(`<strong>${name}</strong><br>
 Tipo: ${type}<br>
+Intensidade: ${intensity}<br>
 Vento: ${wind} km/h<br>
 Direção: ${direction}<br>
 Pressão: ${pressure} hPa`);
