@@ -20,20 +20,22 @@ fetch("https://www.nhc.noaa.gov/CurrentStorms.json")
         longitudeNumeric: lon
       } = storm;
 
-      const windSpeed = parseInt(intensity);
-      if (isNaN(windSpeed) || windSpeed < 178) return;
+      const windKnots = parseInt(intensity);
+      const windKph = Math.round(windKnots * 1.852); // conversão para km/h
+
+      if (isNaN(windKph) || windKph < 178) return; // filtrar categoria ≥ 3
 
       const row = tbody.insertRow();
       row.innerHTML = `
         <td>${name}</td>
         <td>${classification}</td>
         <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
-        <td>${windSpeed} km/h</td>
+        <td>${windKph} km/h</td>
         <td>${pressure || "N/A"}</td>
       `;
 
       L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<strong>${name}</strong><br>Tipo: ${classification}<br>Vento: ${windSpeed} km/h<br>Pressão: ${pressure || "N/A"} hPa`);
+        .bindPopup(`<strong>${name}</strong><br>Classificação: ${classification}<br>Vento: ${windKph} km/h<br>Pressão: ${pressure || "N/A"} hPa`);
     });
   })
   .catch(err => {
