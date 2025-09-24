@@ -25,6 +25,22 @@ function degreesToCardinal(deg) {
   return dirs[ix];
 }
 
+function computeOffset(lat, lon, bearing, distanceDeg = 0.5) {
+  const rad = Math.PI / 180;
+  const lat1 = lat * rad;
+  const lon1 = lon * rad;
+  const brng = bearing * rad;
+
+  const lat2 = Math.asin(Math.sin(lat1) * Math.cos(distanceDeg * rad) +
+    Math.cos(lat1) * Math.sin(distanceDeg * rad) * Math.cos(brng));
+  const lon2 = lon1 + Math.atan2(
+    Math.sin(brng) * Math.sin(distanceDeg * rad) * Math.cos(lat1),
+    Math.cos(distanceDeg * rad) - Math.sin(lat1) * Math.sin(lat2)
+  );
+
+  return [lat2 / rad, lon2 / rad];
+}
+
 loadBtn.onclick = () => {
   const ids = idInput.value.split(",").map(id => id.trim()).filter(Boolean);
   tbody.innerHTML = "";
@@ -55,7 +71,8 @@ function loadFromJson(manualIds) {
         const lat = parseFloat(storm.latitudeNumeric) || 0;
         const lon = parseFloat(storm.longitudeNumeric) || 0;
         const wind = parseInt(storm.movementSpeed) || 0;
-        const direction = degreesToCardinal(parseFloat(storm.movementDir));
+        const bearing = parseFloat(storm.movementDir);
+        const direction = degreesToCardinal(bearing);
         const pressure = storm.pressure || "N/A";
 
         const row = tbody.insertRow();
@@ -81,6 +98,16 @@ Tipo: ${type}<br>
 Vento: ${wind} km/h<br>
 Direção: ${direction}<br>
 Pressão: ${pressure} hPa`);
+
+        if (!isNaN(bearing)) {
+          const [destLat, destLon] = computeOffset(lat, lon, bearing);
+          L.polyline([[lat, lon], [destLat, destLon]], {
+            color: "#333",
+            weight: 2,
+            opacity: 0.8,
+            dashArray: "4,4"
+          }).addTo(map);
+        }
       });
 
       loadManualIds(manualIds);
