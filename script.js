@@ -110,7 +110,7 @@ function loadFromJson() {
           <td>${wind} km/h</td>
           <td>${direction}</td>
           <td>${pressure}</td>
-          <td><span style="${getColorStyleByIntensity(intensity)}"></span>${intensity}</td>
+          <td><span style="${getColorStyleByIntensity(intensity)}"></span>${intensity} — <strong>${name}</strong></td>
         `;
 
         const marker = L.circleMarker([lat, lon], {
