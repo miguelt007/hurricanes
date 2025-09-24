@@ -4,8 +4,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 const tbody = document.querySelector("#stormTable tbody");
-const idInput = document.getElementById("idInput");
-const loadBtn = document.getElementById("loadBtn");
 const fallback = document.getElementById("fallback");
 
 function getColor(wind) {
@@ -41,19 +39,7 @@ function computeOffset(lat, lon, bearing, distanceDeg = 1.5) {
   return [lat2 / rad, lon2 / rad];
 }
 
-loadBtn.onclick = () => {
-  const ids = idInput.value.split(",").map(id => id.trim()).filter(Boolean);
-  tbody.innerHTML = "";
-  fallback.innerHTML = "";
-  map.eachLayer(layer => {
-    if (layer instanceof L.Marker || layer instanceof L.CircleMarker || layer instanceof L.GeoJSON || layer instanceof L.Polyline) {
-      map.removeLayer(layer);
-    }
-  });
-  loadFromJson(ids);
-};
-
-function loadFromJson(manualIds) {
+function loadFromJson() {
   const url = "https://api.allorigins.win/raw?url=https://www.nhc.noaa.gov/CurrentStorms.json";
 
   fetch(url)
@@ -111,12 +97,9 @@ Pressão: ${pressure} hPa`);
           }
         }
       });
-
-      loadManualIds(manualIds);
     })
     .catch(() => {
       loadFromXml();
-      loadManualIds(manualIds);
     });
 }
 
@@ -141,82 +124,4 @@ function loadFromXml() {
     });
 }
 
-function loadManualIds(ids) {
-  ids.forEach(id => {
-    const geojsonUrl = `https://www.nhc.noaa.gov/gis/forecast/archive/${id}_5day_latest.geojson`;
-
-    fetch(geojsonUrl)
-      .then(res => {
-        if (!res.ok) throw new Error("GeoJSON não encontrado");
-        return res.json();
-      })
-      .then(data => {
-        let found = false;
-
-        L.geoJSON(data, {
-          onEachFeature: function (feature, layer) {
-            const props = feature.properties;
-            const name = props.STORMNAME || id;
-            const type = props.STORMTYPE || "Tropical";
-            const lat = props.LAT || 0;
-            const lon = props.LON || 0;
-            const wind = parseInt(props.WINDSPEED) || 0;
-            const pressure = props.PRESSURE || "N/A";
-
-            const row = tbody.insertRow();
-            row.innerHTML = `
-              <td>${name}</td>
-              <td>${type}</td>
-              <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
-              <td>${wind} km/h</td>
-              <td>—</td>
-              <td>${pressure}</td>
-            `;
-
-            const marker = L.circleMarker([lat, lon], {
-              radius: 8,
-              fillColor: getColor(wind),
-              color: "#000",
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.8
-            });
-            marker.bindPopup(`<strong>${name}</strong><br>
-Tipo: ${type}<br>
-Vento: ${wind} km/h<br>
-Pressão: ${pressure} hPa`);
-            marker.addTo(map);
-            found = true;
-          }
-        }).addTo(map);
-
-        // 🔄 Carregar cone de previsão se existir
-        const coneUrl = `https://www.nhc.noaa.gov/gis/forecast/archive/${id}_cone_latest.geojson`;
-
-        fetch(coneUrl)
-          .then(res => {
-            if (!res.ok) throw new Error("Cone não encontrado");
-            return res.json();
-          })
-          .then(coneData => {
-            L.geoJSON(coneData, {
-              style: {
-                color: "#666",
-                weight: 1,
-                fillColor: "#999",
-                fillOpacity: 0.3
-              }
-            }).addTo(map);
-          })
-          .catch(() => {
-            console.log(`Cone não disponível para ${id}`);
-          });
-      })
-      .catch(() => {
-        const row = tbody.insertRow();
-        row.innerHTML = `<td>${id}</td><td colspan="6">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
-      });
-  });
-}
-
-loadBtn.click();
+loadFromJson();
