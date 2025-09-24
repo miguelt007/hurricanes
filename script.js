@@ -11,24 +11,29 @@ fetch("https://www.nhc.noaa.gov/CurrentStorms.json")
     const storms = data.activeStorms || [];
 
     storms.forEach(storm => {
-      const { name, type, lat, lon, windSpeed, pressure } = storm;
+      const {
+        name,
+        classification,
+        intensity,
+        pressure,
+        latitudeNumeric: lat,
+        longitudeNumeric: lon
+      } = storm;
 
-      // Filtrar por furacões/tufões com vento ≥ 178 km/h (≈ Categoria 3)
-      if (windSpeed < 178) return;
+      const windSpeed = parseInt(intensity);
+      if (isNaN(windSpeed) || windSpeed < 178) return;
 
-      // Adiciona à tabela
       const row = tbody.insertRow();
       row.innerHTML = `
         <td>${name}</td>
-        <td>${type}</td>
+        <td>${classification}</td>
         <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
         <td>${windSpeed} km/h</td>
         <td>${pressure || "N/A"}</td>
       `;
 
-      // Adiciona ao mapa
       L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<strong>${name}</strong><br>Tipo: ${type}<br>Vento: ${windSpeed} km/h<br>Pressão: ${pressure || "N/A"} hPa`);
+        .bindPopup(`<strong>${name}</strong><br>Tipo: ${classification}<br>Vento: ${windSpeed} km/h<br>Pressão: ${pressure || "N/A"} hPa`);
     });
   })
   .catch(err => {
