@@ -4,59 +4,45 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 const tbody = document.querySelector("#stormTable tbody");
-const legend = L.control({ position: 'bottomright' });
-const refreshBtn = document.createElement("button");
-
-// ⚠️ Lista manual de IDs ativos
-// Podes obter os IDs reais aqui: https://www.nhc.noaa.gov/cyclones/
-const stormIds = [
-  "AL072025", // Gabrielle
-  "EP132025", // Mario
-  "EP142025"  // Narda (exemplo)
-];
+const idInput = document.getElementById("idInput");
+const loadBtn = document.getElementById("loadBtn");
 
 // Cores por intensidade (km/h)
 function getColor(wind) {
-  if (wind >= 250) return "#800026"; // Cat 5
-  if (wind >= 210) return "#BD0026"; // Cat 4
-  if (wind >= 178) return "#E31A1C"; // Cat 3
-  if (wind >= 154) return "#FC4E2A"; // Cat 2
-  if (wind >= 119) return "#FD8D3C"; // Cat 1
-  return "#FEB24C"; // TS ou menos
+  if (wind >= 250) return "#800026";
+  if (wind >= 210) return "#BD0026";
+  if (wind >= 178) return "#E31A1C";
+  if (wind >= 154) return "#FC4E2A";
+  if (wind >= 119) return "#FD8D3C";
+  return "#FEB24C";
 }
 
-// Legenda dinâmica
-legend.onAdd = function () {
+// Legenda
+L.control({ position: 'bottomright' }).onAdd = function () {
   const div = L.DomUtil.create('div', 'info legend');
   const grades = [119, 154, 178, 210, 250];
   const labels = ["Cat 1", "Cat 2", "Cat 3", "Cat 4", "Cat 5"];
-
   div.innerHTML = "<strong>Intensidade</strong><br>";
   for (let i = 0; i < grades.length; i++) {
-    div.innerHTML +=
-      `<i style="background:${getColor(grades[i] + 1)}; width:18px; height:18px; display:inline-block;"></i> ${labels[i]}<br>`;
+    div.innerHTML += `<i style="background:${getColor(grades[i] + 1)}; width:18px; height:18px; display:inline-block;"></i> ${labels[i]}<br>`;
   }
   return div;
-};
-legend.addTo(map);
+}.addTo(map);
 
-// Botão de atualização
-refreshBtn.textContent = "🔄 Atualizar dados";
-refreshBtn.style = "margin-top:10px; padding:6px 12px; font-size:16px;";
-document.body.insertBefore(refreshBtn, document.getElementById("map"));
-
-refreshBtn.onclick = () => {
+// Botão de carregamento
+loadBtn.onclick = () => {
+  const ids = idInput.value.split(",").map(id => id.trim()).filter(Boolean);
   tbody.innerHTML = "";
   map.eachLayer(layer => {
-    if (layer instanceof L.Marker || layer instanceof L.GeoJSON) map.removeLayer(layer);
+    if (layer instanceof L.Marker || layer instanceof L.CircleMarker || layer instanceof L.GeoJSON) map.removeLayer(layer);
   });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
   }).addTo(map);
-  loadStorms();
+  loadStorms(ids);
 };
 
-function loadStorms() {
+function loadStorms(stormIds) {
   stormIds.forEach(id => {
     const geojsonUrl = `https://www.nhc.noaa.gov/gis/forecast/archive/${id}_5day_latest.geojson`;
 
@@ -103,20 +89,15 @@ function loadStorms() {
 
         if (!found) {
           const row = tbody.insertRow();
-          row.innerHTML = `
-            <td>${id}</td>
-            <td colspan="4">GeoJSON carregado mas sem dados visíveis</td>
-          `;
+          row.innerHTML = `<td>${id}</td><td colspan="4">GeoJSON carregado mas sem dados visíveis</td>`;
         }
       })
       .catch(() => {
         const row = tbody.insertRow();
-        row.innerHTML = `
-          <td>${id}</td>
-          <td colspan="4">⚠️ Dados não disponíveis ou ficheiro inexistente</td>
-        `;
+        row.innerHTML = `<td>${id}</td><td colspan="4">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
       });
   });
 }
 
-loadStorms();
+// Carregamento inicial
+loadBtn.click();
