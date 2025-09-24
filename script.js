@@ -3,6 +3,31 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
+const legend = L.control({ position: 'bottomright' });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'info legend');
+  const grades = [250, 210, 178, 154, 119, 0];
+  const labels = [
+    "Categoria 5 (≥ 250 km/h)",
+    "Categoria 4 (210–249 km/h)",
+    "Categoria 3 (178–209 km/h)",
+    "Categoria 2 (154–177 km/h)",
+    "Categoria 1 (119–153 km/h)",
+    "Tempestade (< 119 km/h)"
+  ];
+  const colors = ["#800026", "#BD0026", "#E31A1C", "#FC4E2A", "#FD8D3C", "#FEB24C"];
+
+  for (let i = 0; i < grades.length; i++) {
+    div.innerHTML +=
+      `<i style="background:${colors[i]}; width:12px; height:12px; display:inline-block; margin-right:6px;"></i> ${labels[i]}<br>`;
+  }
+
+  return div;
+};
+
+legend.addTo(map);
+
 const tbody = document.querySelector("#stormTable tbody");
 const fallback = document.getElementById("fallback");
 
