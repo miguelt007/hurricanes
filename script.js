@@ -132,14 +132,14 @@ Vento: ${wind} km/h<br>
 Direção: ${direction}<br>
 Pressão: ${pressure} hPa`);
 
-        marker.addTo(map);
-
         marker.bindTooltip(name, {
           permanent: true,
           direction: 'right',
           offset: [10, 0],
           opacity: 0.9
         });
+
+        marker.addTo(map);
 
         if (!isNaN(bearing)) {
           const [destLat, destLon] = computeOffset(lat, lon, bearing, 1.5);
