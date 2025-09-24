@@ -6,6 +6,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 const tbody = document.querySelector("#stormTable tbody");
 const idInput = document.getElementById("idInput");
 const loadBtn = document.getElementById("loadBtn");
+const fallback = document.getElementById("fallback");
 
 // Cores por intensidade (km/h)
 function getColor(wind) {
@@ -17,33 +18,89 @@ function getColor(wind) {
   return "#FEB24C";
 }
 
-// Legenda
-L.control({ position: 'bottomright' }).onAdd = function () {
-  const div = L.DomUtil.create('div', 'info legend');
-  const grades = [119, 154, 178, 210, 250];
-  const labels = ["Cat 1", "Cat 2", "Cat 3", "Cat 4", "Cat 5"];
-  div.innerHTML = "<strong>Intensidade</strong><br>";
-  for (let i = 0; i < grades.length; i++) {
-    div.innerHTML += `<i style="background:${getColor(grades[i] + 1)}; width:18px; height:18px; display:inline-block;"></i> ${labels[i]}<br>`;
-  }
-  return div;
-}.addTo(map);
-
-// Botão de carregamento
+// Botão principal
 loadBtn.onclick = () => {
   const ids = idInput.value.split(",").map(id => id.trim()).filter(Boolean);
   tbody.innerHTML = "";
+  fallback.innerHTML = "";
   map.eachLayer(layer => {
     if (layer instanceof L.Marker || layer instanceof L.CircleMarker || layer instanceof L.GeoJSON) map.removeLayer(layer);
   });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
   }).addTo(map);
-  loadStorms(ids);
+  loadFromJson(ids);
 };
 
-function loadStorms(stormIds) {
-  stormIds.forEach(id => {
+// Fonte principal: CurrentStorms.json
+function loadFromJson(manualIds) {
+  const url = "https://api.allorigins.win/raw?url=https://www.nhc.noaa.gov/CurrentStorms.json";
+
+  fetch(url)
+    .then(res => res.json())
+    .then(json => {
+      if (!json || !json.activeStorms || json.activeStorms.length === 0) {
+        loadFromXml();
+        return;
+      }
+
+      json.activeStorms.forEach(storm => {
+        const { name, type, lat, lon, windSpeed, pressure } = storm;
+
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td>${name}</td>
+          <td>${type}</td>
+          <td>${lat}, ${lon}</td>
+          <td>${windSpeed} km/h</td>
+          <td>${pressure}</td>
+        `;
+
+        L.circleMarker([lat, lon], {
+          radius: 8,
+          fillColor: getColor(windSpeed),
+          color: "#000",
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8
+        }).addTo(map)
+          .bindPopup(`<strong>${name}</strong><br>Tipo: ${type}<br>Vento: ${windSpeed} km/h<br>Pressão: ${pressure} hPa`);
+      });
+
+      // Também tenta os IDs manuais
+      loadManualIds(manualIds);
+    })
+    .catch(() => {
+      loadFromXml();
+      loadManualIds(manualIds);
+    });
+}
+
+// Fonte secundária: nhc_at2.xml
+function loadFromXml() {
+  const url = "https://api.allorigins.win/raw?url=https://www.nhc.noaa.gov/nhc_at2.xml";
+
+  fetch(url)
+    .then(res => res.text())
+    .then(xmlText => {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+      const advisory = xmlDoc.querySelector("text");
+
+      if (advisory) {
+        fallback.innerHTML = `<h3>📢 Aviso oficial (XML)</h3><pre>${advisory.textContent.trim()}</pre>`;
+      } else {
+        fallback.innerHTML = `<p>⚠️ Nenhum aviso encontrado no XML.</p>`;
+      }
+    })
+    .catch(() => {
+      fallback.innerHTML = `<p>⚠️ Erro ao carregar boletim XML.</p>`;
+    });
+}
+
+// Fallback manual: IDs colados
+function loadManualIds(ids) {
+  ids.forEach(id => {
     const geojsonUrl = `https://www.nhc.noaa.gov/gis/forecast/archive/${id}_5day_latest.geojson`;
 
     fetch(geojsonUrl)
