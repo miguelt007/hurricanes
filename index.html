@@ -10,11 +10,19 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f4f4f4; }
+    input[type="text"] { font-size: 16px; }
+    button { cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🌪️ Furacões e Tufões Ativos (NOAA)</h1>
+  <h1>🌪️ Painel de Furacões e Tufões Ativos</h1>
+
+  <label for="idInput"><strong>🌀 IDs de sistemas ativos (separados por vírgulas):</strong></label><br>
+  <input type="text" id="idInput" value="AL072025,EP132025" style="width:100%; padding:8px; margin-top:6px;" />
+  <button id="loadBtn" style="margin-top:10px; padding:6px 12px; font-size:16px;">🔄 Carregar sistemas</button>
+
   <div id="map"></div>
+
   <table id="stormTable">
     <thead>
       <tr>
