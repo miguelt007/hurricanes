@@ -5,34 +5,27 @@
   <title>Painel de Furacões Ativos</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    #map { height: 500px; margin-top: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f4f4f4; }
-    input[type="text"] { font-size: 16px; }
-    button { cursor: pointer; }
-    #fallback { margin-top: 20px; background: #f9f9f9; padding: 10px; border: 1px solid #ccc; }
+    body { font-family: sans-serif; margin: 0; padding: 0; }
+    #map { height: 60vh; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    th { background: #f0f0f0; }
+    #fallback { padding: 10px; background: #f9f9f9; font-size: 0.9em; }
   </style>
 </head>
 <body>
-  <h1>🌪️ Painel de Furacões Ativos</h1>
-
-  <label for="idInput"><strong>🌀 IDs manuais (separados por vírgulas):</strong></label><br>
-  <input type="text" id="idInput" value="ep142025,al072025" style="width:100%; padding:8px; margin-top:6px;" />
-  <button id="loadBtn" style="margin-top:10px; padding:6px 12px; font-size:16px;">🔄 Carregar sistemas</button>
-
+  <h2 style="text-align:center">🌀 Furacões Ativos (NOAA)</h2>
   <div id="map"></div>
 
   <table id="stormTable">
     <thead>
       <tr>
         <th>Nome</th>
-        <th>Classificação</th>
+        <th>Tipo</th>
         <th>Localização</th>
-        <th>Velocidade (km/h)</th>
+        <th>Vento</th>
         <th>Direção</th>
-        <th>Pressão (hPa)</th>
+        <th>Pressão</th>
       </tr>
     </thead>
     <tbody></tbody>
