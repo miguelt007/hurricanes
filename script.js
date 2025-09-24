@@ -5,42 +5,44 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 const tbody = document.querySelector("#stormTable tbody");
 
-const url = "https://api.allorigins.win/raw?url=https://www.nhc.noaa.gov/CurrentStorms.json";
+// ⚠️ Lista manual de IDs ativos (atualiza conforme necessário)
+// Podes obter os IDs reais aqui: https://www.nhc.noaa.gov/cyclones/
+const stormIds = [
+  "AL072025", // Gabrielle
+  "EP132025"  // Mario
+];
 
-fetch(url)
-  .then(res => res.json())
-  .then(data => {
-    const storms = data.activeStorms || [];
+stormIds.forEach(id => {
+  const geojsonUrl = `https://www.nhc.noaa.gov/gis/forecast/archive/${id}_5day_latest.geojson`;
 
-    storms.forEach(storm => {
-      const {
-        id,
-        name,
-        classification,
-        intensity,
-        pressure,
-        latitudeNumeric: lat,
-        longitudeNumeric: lon
-      } = storm;
+  fetch(geojsonUrl)
+    .then(res => res.json())
+    .then(data => {
+      L.geoJSON(data, {
+        onEachFeature: function (feature, layer) {
+          const props = feature.properties;
+          const name = props.STORMNAME || id;
+          const type = props.STORMTYPE || "Tropical";
+          const lat = props.LAT || 0;
+          const lon = props.LON || 0;
+          const wind = props.WINDSPEED || "N/A";
+          const pressure = props.PRESSURE || "N/A";
 
-      const windKnots = parseInt(intensity);
-      const windKph = Math.round(windKnots * 1.852);
-      if (isNaN(windKph)) return;
+          const row = tbody.insertRow();
+          row.innerHTML = `
+            <td>${name}</td>
+            <td>${type}</td>
+            <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
+            <td>${wind}</td>
+            <td>${pressure}</td>
+          `;
 
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td>${name}</td>
-        <td>${classification}</td>
-        <td>${lat.toFixed(2)}, ${lon.toFixed(2)}</td>
-        <td>${windKph} km/h</td>
-        <td>${pressure || "N/A"}</td>
-      `;
-
-      L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<strong>${name}</strong><br>Tipo: ${classification}<br>Vento: ${windKph} km/h<br>Pressão: ${pressure || "N/A"} hPa`);
+          L.marker([lat, lon]).addTo(map)
+            .bindPopup(`<strong>${name}</strong><br>Tipo: ${type}<br>Vento: ${wind} km/h<br>Pressão: ${pressure} hPa`);
+        }
+      }).addTo(map);
+    })
+    .catch(err => {
+      console.warn(`Erro ao carregar ${id}:`, err);
     });
-  })
-  .catch(err => {
-    console.error("Erro ao carregar dados:", err);
-    alert("Não foi possível carregar os dados dos furacões.");
-  });
+});
