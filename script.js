@@ -17,6 +17,14 @@ function getColor(wind) {
   return "#FEB24C";
 }
 
+function degreesToCardinal(deg) {
+  if (typeof deg !== "number" || isNaN(deg)) return "N/A";
+  const dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  const ix = Math.floor((deg + 11.25) / 22.5) % 16;
+  return dirs[ix];
+}
+
 loadBtn.onclick = () => {
   const ids = idInput.value.split(",").map(id => id.trim()).filter(Boolean);
   tbody.innerHTML = "";
@@ -47,7 +55,7 @@ function loadFromJson(manualIds) {
         const lat = parseFloat(storm.latitudeNumeric) || 0;
         const lon = parseFloat(storm.longitudeNumeric) || 0;
         const wind = parseInt(storm.movementSpeed) || 0;
-        const direction = storm.movementDir || "N/A";
+        const direction = degreesToCardinal(parseFloat(storm.movementDir));
         const pressure = storm.pressure || "N/A";
 
         const row = tbody.insertRow();
@@ -156,13 +164,4 @@ Pressão: ${pressure} hPa`);
         if (!found) {
           const row = tbody.insertRow();
           row.innerHTML = `<td>${id}</td><td colspan="6">GeoJSON carregado mas sem dados visíveis</td>`;
-        }
-      })
-      .catch(() => {
-        const row = tbody.insertRow();
-        row.innerHTML = `<td>${id}</td><td colspan="6">⚠️ Dados não disponíveis ou ficheiro inexistente</td>`;
-      });
-  });
-}
-
-loadBtn.click();
+       [43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/Concours99/Weather-Station/tree/e4aabe75e27f9414bc3e25fab72efeec917fc59d/tempest.py?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/ramsendang/ecommerce/tree/45b70895dbe560adec17450a524225e465019645/admin%2Fassets%2Fweather%2Fjs%2Fjquery.simpleWeather.min.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "2")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/sfriso/InfoBox/tree/aff70e7481c8043b2457b4cdb703818e86a079ee/routes%2Fpublic%2Ftesto%2Finfobox.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "3")
