@@ -160,7 +160,8 @@ Pressão: ${pressure} hPa`);
             found = true;
           }
         }).addTo(map);
-if (!found) {
+
+        if (!found) {
           const row = tbody.insertRow();
           row.innerHTML = `<td>${id}</td><td colspan="6">GeoJSON carregado mas sem dados visíveis</td>`;
         }
