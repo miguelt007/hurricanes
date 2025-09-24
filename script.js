@@ -110,7 +110,7 @@ function loadFromJson() {
           <td>${wind} km/h</td>
           <td>${direction}</td>
           <td>${pressure}</td>
-          <td><span style="${getColorStyleByIntensity(intensity)}"></span>${intensity} — <strong>${name}</strong></td>
+          <td><span style="${getColorStyleByIntensity(intensity)}"></span>${intensity}</td>
         `;
 
         const marker = L.circleMarker([lat, lon], {
@@ -121,12 +121,21 @@ function loadFromJson() {
           opacity: 1,
           fillOpacity: 0.8
         });
+
         marker.bindPopup(`<strong>${name}</strong><br>
 Tipo: ${type}<br>
 Intensidade: ${intensity}<br>
 Vento: ${wind} km/h<br>
 Direção: ${direction}<br>
 Pressão: ${pressure} hPa`);
+
+        marker.bindTooltip(name, {
+          permanent: true,
+          direction: 'right',
+          offset: [10, 0],
+          className: 'storm-label'
+        });
+
         marker.addTo(map);
 
         if (!isNaN(bearing)) {
