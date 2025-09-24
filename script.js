@@ -1,19 +1,25 @@
-const map = L.map('map').setView([20, -60], 3);
+const apiKey = "YOUR_API_KEY"; // substitui pela tua chave gratuita
+const cities = ["Lisboa", "Miami", "Tokyo", "Sydney"];
+const map = L.map('map').setView([20, 0], 2);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// Exemplo de dados simulados
-const storms = [
-  { name: "Hurricane Lisa", category: 3, lat: 25.3, lon: -70.2, wind: "185 km/h" },
-  { name: "Typhoon Kenji", category: 4, lat: 18.7, lon: 135.5, wind: "210 km/h" }
-];
+const tbody = document.querySelector("#weatherTable tbody");
 
-// Preencher tabela e mapa
-const tbody = document.querySelector("#stormTable tbody");
-storms.forEach(storm => {
-  const row = tbody.insertRow();
-  row.innerHTML = `<td>${storm.name}</td><td>${storm.category}</td><td>${storm.lat}, ${storm.lon}</td><td>${storm.wind}</td>`;
-  L.marker([storm.lat, storm.lon]).addTo(map)
-    .bindPopup(`<strong>${storm.name}</strong><br>Categoria: ${storm.category}<br>Vento: ${storm.wind}`);
+cities.forEach(city => {
+  fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`)
+    .then(res => res.json())
+    .then(data => {
+      const { name, lat, lon } = data.location;
+      const { temp_c, wind_kph, condition } = data.current;
+
+      // Adiciona à tabela
+      const row = tbody.insertRow();
+      row.innerHTML = `<td>${name}</td><td>${temp_c}°C</td><td>${wind_kph} km/h</td><td>${condition.text}</td>`;
+
+      // Adiciona ao mapa
+      L.marker([lat, lon]).addTo(map)
+        .bindPopup(`<strong>${name}</strong><br>${condition.text}<br>Temp: ${temp_c}°C<br>Vento: ${wind_kph} km/h`);
+    });
 });
